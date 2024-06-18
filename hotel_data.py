@@ -62,7 +62,7 @@ guests_map = px.choropleth(
 )
 
 guests_map.update_layout(
-    paper_bgcolor="black", plot_bgcolor="black", geo=dict(bgcolor="black")
+    paper_bgcolor="white", plot_bgcolor="white", geo=dict(bgcolor="lightgray")
 )
 
 # quanto é pago por tipo de hotel
@@ -72,7 +72,7 @@ hotel_price = px.box(
     x="reserved_room_type",
     y="adr",
     color="hotel",
-    template="plotly_dark",
+    template="plotly",
 )
 
 
@@ -99,7 +99,7 @@ price_variation = px.line(
     x="month",
     y=["price_for_resort", "price_for_city_hotel"],
     title="Room price per night over the Months",
-    template="plotly_dark",
+    template="plotly",
 )
 
 # meses mais movimentados
@@ -116,7 +116,7 @@ total_guests_month = px.line(
     x="month",
     y=["no of guests in resort", "no of guest in city hotel"],
     title="Total no of guests per Months",
-    template="plotly_dark",
+    template="plotly",
 )
 
 # tempo de estadia
@@ -132,5 +132,5 @@ tempo_estadia = px.bar(
     y="Number of stays",
     color="hotel",
     barmode="group",
-    template="plotly_dark",
+    template="plotly",
 )
