@@ -22,7 +22,7 @@ def test_read_csv():
 def test_data_types(my_data):
     test_data_types = my_data
     assert test_data_types['hotel'].dtype == 'object'
-    assert test_data_types['is_canceled'].dtype == np.int64  # or 'int64' if preferred
+    assert test_data_types['is_canceled'].dtype == np.int64  
     assert test_data_types['lead_time'].dtype == np.int64
     assert test_data_types['arrival_date_year'].dtype == np.int64
     assert test_data_types['arrival_date_month'].dtype == 'object'
