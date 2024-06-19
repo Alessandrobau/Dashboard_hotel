@@ -2,14 +2,25 @@ import pandas as pd
 import numpy as np
 import pytest
 import hotel_data
+from dash import Dash, dcc, html
+from dash.dependencies import Input, Output
 
-@pytest.fixture
-def load_data_from_csv(file_path):
-    return pd.read_csv(file_path)
+@pytest.fixture(name='my_data')
+def my_data():    
+    return pd.read_csv('dados.csv')
+
+def my_dataframe():
+    return hotel_data.df
+
+# verificar se o dataframe não está vazio
+def test_read_csv():
+    assert not my_dataframe().empty
+    assert len(my_dataframe()) > 0
+    assert len(my_dataframe().columns) > 0
 
 # validar se os tipos do csv estão certos
-def test_data_types():
-    test_data_types = load_data_from_csv('dados.csv')
+def test_data_types(my_data):
+    test_data_types = my_data
     assert test_data_types['hotel'].dtype == 'object'
     assert test_data_types['is_canceled'].dtype == np.int64  # or 'int64' if preferred
     assert test_data_types['lead_time'].dtype == np.int64
@@ -43,8 +54,30 @@ def test_data_types():
     assert test_data_types['reservation_status'].dtype == 'object'
     assert test_data_types['reservation_status_date'].dtype == 'object'
 
+# validar se a função de remover nulos esta realmente removendo os nulos
+def test_remove_null_values():
+    dataframe = my_dataframe()
+    dataframe.fillna(0, inplace=True)
+    assert not dataframe.isna().sum().any()
 
-def test_map_graph():
+# teste se as colunas usadas no gráfico de mapas são as colunas corretas
+def test_country_wise_guests():
     expected_columns = ["country", "No of guests"]
     assert list(hotel_data.country_wise_guests.columns) == expected_columns
 
+# testar se o merge entre os dados esta ocorrendo corretamente
+def test_data_merging():
+    hotel_data.data_resort = my_dataframe()[(my_dataframe()['hotel'] == 'Resort Hotel') & (my_dataframe()['is_canceled'] == 0)]
+    hotel_data.data_city = my_dataframe()[(my_dataframe()['hotel'] == 'City Hotel') & (my_dataframe()['is_canceled'] == 0)]
+    hotel_data.resort_hotel = hotel_data.data_resort.groupby(['arrival_date_month'])['adr'].mean().reset_index()
+    hotel_data.city_hotel = hotel_data.data_city.groupby(['arrival_date_month'])['adr'].mean().reset_index()
+    hotel_data.final_hotel = hotel_data.resort_hotel.merge(hotel_data.city_hotel, on='arrival_date_month')
+    assert not hotel_data.final_hotel.empty
+    assert 'arrival_date_month' in hotel_data.final_hotel.columns
+
+# testar se a filtragem está correta
+def test_filtering(my_data):
+    df_test = my_data.copy()
+    filter_condition =  (df_test.children == 0) & (df_test.adults == 0) & (df_test.babies == 0)
+    filtered_df = df_test[~filter_condition]
+    assert len(filtered_df) == len(my_dataframe())
